@@ -1,0 +1,507 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Reset and base styles (exclude header and footer) */
+    *:not(header):not(header *):not(footer):not(footer *) {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+            Cantarell, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: #f8fafc;
+        min-height: 100vh;
+    }
+
+    /* Header spacing: assume fixed header height */
+    header {
+        position: relative;
+        z-index: 100;
+    }
+
+    /* Main content wrapper */
+    main {
+        min-height: calc(100vh - 120px);
+        /* 120px = header + footer approx */
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+        padding: 20px;
+        margin-top: 100px;
+        /* match header height */
+        margin-bottom: 20px;
+    }
+
+    /* Sections (forms) */
+    section.form-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 2rem 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Gradient top bar */
+    section.form-container::before {
+        content: '';
+        height: 4px;
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        border-radius: 20px 20px 0 0;
+    }
+
+    /* Form header */
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .form-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .form-header p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .form-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+    }
+
+    /* Form fields */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #333;
+        font-size: 1rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="tel"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: inherit;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+        resize: vertical;
+        box-sizing: border-box;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="tel"]:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: #f39c12;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+    }
+
+    /* Medicine blocks */
+    .medicine-block h3 {
+        color: #f39c12;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Buttons */
+    button.submit-btn {
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 1.5rem;
+        transition: background 0.3s ease;
+        user-select: none;
+    }
+
+    button.submit-btn:hover {
+        background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
+    }
+
+    /* Sections visibility */
+    section {
+        display: none;
+    }
+
+    section.active {
+        display: block;
+    }
+
+    .next-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        user-select: none;
+    }
+
+    .next-btn:hover {
+        background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="tel"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: inherit;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+        resize: vertical;
+        box-sizing: border-box;
+        height: 3.75rem;
+        /* make select match input height */
+    }
+
+    select {
+        -webkit-appearance: none;
+        /* remove default arrow style on Safari/Chrome */
+        -moz-appearance: none;
+        /* Firefox */
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg width='14' height='14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4l7 7 7-7z' fill='%23333'/%3E%3C/svg%3E");
+        /* custom arrow */
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 0.65rem;
+        padding-right: 2.5rem;
+    }
+</style>
+
+<section class="active form-container" id="patientDetails">
+    <div class="form-header">
+        <div class="form-icon"><i class="fas fa-user-md"></i></div>
+        <h1>Patient Details</h1>
+        <p>Please provide your information to get personalized healthcare assistance</p>
+    </div>
+    <form id="patientForm">
+        <div class="form-group">
+            <label for="name">Full Name <span class="required">*</span></label>
+            <input id="name" name="name" placeholder="Enter your full name" required type="text" />
+        </div>
+        <div class="form-group">
+            <label for="age">Age <span class="required">*</span></label>
+            <input id="age" max="120" min="1" name="age" placeholder="Enter your age" required type="number" />
+        </div>
+        <div class="form-group">
+            <label for="gender">Gender <span class="required">*</span></label>
+            <select id="gender" name="gender" required>
+                <option selected value="">Select your gender</option>
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+                <option value="other">Other</option>
+                <option value="prefer-not-to-say">Prefer not to say</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone Number <span class="required">*</span></label>
+            <input id="phone" name="phone" placeholder="Enter your phone number" required type="tel" pattern="[0-9]{10}"
+                maxlength="10" />
+        </div>
+        <a class="next-btn" href="#" id="toMedicineSchedule">Next</a>
+    </form>
+</section>
+
+<section class="form-container" id="medicineSchedule">
+    <div class="form-header">
+        <div class="form-icon"><i class="fas fa-prescription-bottle-alt"></i></div>
+        <h1>Medicine Schedule Details</h1>
+        <p>Please specify your medication schedule and instructions</p>
+    </div>
+
+    <form id="scheduleForm">
+        <div class="form-group">
+            <label for="medicinesCount">Number of distinct medicines:</label>
+            <input id="medicinesCount" max="10" min="1" name="medicinesCount" placeholder="e.g. 4" required
+                type="number" />
+        </div>
+        <div id="medicinesContainer"></div>
+        <button class="submit-btn" type="submit">Save Schedule</button>
+    </form>
+</section>
+
+<script>
+    // Navigation logic
+    document.getElementById('toMedicineSchedule').addEventListener('click', function (e) {
+        e.preventDefault();
+        if (document.getElementById('patientForm').reportValidity()) {
+            document.getElementById('patientDetails').classList.remove('active');
+            document.getElementById('medicineSchedule').classList.add('active');
+        }
+    });
+
+    const medicinesCountInput = document.getElementById('medicinesCount');
+    const medicinesContainer = document.getElementById('medicinesContainer');
+
+    medicinesCountInput.addEventListener('input', function () {
+        medicinesContainer.innerHTML = '';
+        const count = parseInt(this.value);
+        if (count > 0 && count <= 10) {
+            for (let i = 1; i <= count; i++) {
+                const block = document.createElement('div');
+                block.className = 'medicine-block';
+
+                const title = document.createElement('h3');
+                title.textContent = `Medicine ${i}`;
+                block.appendChild(title);
+
+                // Medicine name
+                const nameLabel = document.createElement('label');
+                nameLabel.setAttribute('for', `medicineName${i}`);
+                nameLabel.textContent = 'Medicine name:';
+                block.appendChild(nameLabel);
+
+                const nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.id = `medicineName${i}`;
+                nameInput.name = `medicineName${i}`;
+                nameInput.placeholder = 'Enter medicine name';
+                nameInput.required = true;
+                block.appendChild(nameInput);
+
+                // Medicine type dropdown
+                const typeLabel = document.createElement('label');
+                typeLabel.setAttribute('for', `medicineType${i}`);
+                typeLabel.textContent = 'Medicine type:';
+                block.appendChild(typeLabel);
+
+                const typeSelect = document.createElement('select');
+                typeSelect.id = `medicineType${i}`;
+                typeSelect.name = `medicineType${i}`;
+                typeSelect.required = true;
+
+                const optionDefault = document.createElement('option');
+                optionDefault.value = '';
+                optionDefault.textContent = 'Select medicine type';
+                const optionTablet = document.createElement('option');
+                optionTablet.value = 'tablet';
+                optionTablet.text = 'Tablet';
+                const optionSyrup = document.createElement('option');
+                optionSyrup.value = 'syrup';
+                optionSyrup.text = 'Syrup';
+
+                typeSelect.appendChild(optionDefault);
+                typeSelect.appendChild(optionTablet);
+                typeSelect.appendChild(optionSyrup);
+                block.appendChild(typeSelect);
+
+                // Number of doses per day
+                const dosesLabel = document.createElement('label');
+                dosesLabel.setAttribute('for', `dosesPerDay${i}`);
+                dosesLabel.textContent = 'Number of doses per day:';
+                dosesLabel.style.marginTop = '10px';
+                block.appendChild(dosesLabel);
+
+                const dosesInput = document.createElement('input');
+                dosesInput.type = 'number';
+                dosesInput.id = `dosesPerDay${i}`;
+                dosesInput.name = `dosesPerDay${i}`;
+                dosesInput.placeholder = 'e.g. 3';
+                dosesInput.min = 1;
+                dosesInput.max = 10;
+                dosesInput.required = true;
+                block.appendChild(dosesInput);
+
+                // Slots container
+                const slotsContainer = document.createElement('div');
+                slotsContainer.id = `slotsContainer${i}`;
+                block.appendChild(slotsContainer);
+
+                dosesInput.addEventListener('input', () => {
+                    slotsContainer.innerHTML = '';
+                    let doseCount = parseInt(dosesInput.value);
+                    const slotLabels = ['Before Breakfast', 'After Breakfast', 'Lunch', 'Dinner'];
+                    if (doseCount > 0 && doseCount <= 4) {
+                        slotLabels.forEach((label, idx) => {
+                            const slotDiv = document.createElement('div');
+                            slotDiv.className = 'slot-block';
+
+                            const slotLabel = document.createElement('label');
+                            slotLabel.setAttribute('for', `slotTime${i}_${idx + 1}`);
+                            slotLabel.textContent = label;
+
+                            const slotCheckbox = document.createElement('input');
+                            slotCheckbox.type = 'checkbox';
+                            slotCheckbox.id = `slotTime${i}_${idx + 1}`;
+                            slotCheckbox.name = `slotTime${i}`;
+                            slotCheckbox.value = label.toLowerCase().replace(' ', '_');
+
+                            slotDiv.appendChild(slotCheckbox);
+                            slotDiv.appendChild(slotLabel);
+                            slotsContainer.appendChild(slotDiv);
+                        });
+
+                        const checkboxes = slotsContainer.querySelectorAll('input[type=checkbox]');
+                        checkboxes.forEach(cb => {
+                            cb.addEventListener('change', () => {
+                                const selected = Array.from(checkboxes).filter(cb => cb.checked);
+                                if (selected.length > doseCount) {
+                                    cb.checked = false;
+                                    alert(`You can select up to ${doseCount} slots.`);
+                                }
+                            });
+                        });
+                    }
+                });
+
+                medicinesContainer.appendChild(block);
+            }
+        }
+    });
+
+    // Replace your existing form submission handler with this:
+    document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        try {
+            // Get all form data from the schedule form
+            const formData = new FormData(e.target);
+
+            // Get patient personal information from the patient form
+            const patientForm = document.getElementById('patientForm');
+            const patientFormData = new FormData(patientForm);
+
+            const patientInfo = {
+                name: patientFormData.get('name') || '',
+                age: patientFormData.get('age') || '',
+                gender: patientFormData.get('gender') || '',
+                phone: patientFormData.get('phone') || ''
+            };
+
+            // Extract medicine count
+            const medicineCount = parseInt(formData.get('medicinesCount')) || 0;
+
+            // Extract medicine schedule data
+            const medicines = [];
+
+            for (let i = 1; i <= medicineCount; i++) {
+                const medicineName = formData.get(`medicineName${i}`);
+                const medicineType = formData.get(`medicineType${i}`);
+                const dosesPerDay = parseInt(formData.get(`dosesPerDay${i}`)) || 0;
+
+                // Get selected time slots for this medicine
+                const selectedSlots = [];
+                const slotCheckboxes = document.querySelectorAll(`input[name="slotTime${i}"]:checked`);
+
+                slotCheckboxes.forEach(checkbox => {
+                    selectedSlots.push({
+                        timeSlot: checkbox.value,
+                        displayName: checkbox.nextElementSibling.textContent
+                    });
+                });
+
+                if (medicineName && medicineType && dosesPerDay > 0) {
+                    medicines.push({
+                        medicineId: i,
+                        name: medicineName,
+                        type: medicineType,
+                        dosesPerDay: dosesPerDay,
+                        schedule: selectedSlots
+                    });
+                }
+            }
+
+            // Create complete structured data
+            const completeScheduleData = {
+                patient: {
+                    name: patientInfo.name,
+                    age: patientInfo.age,
+                    gender: patientInfo.gender,
+                    phone: patientInfo.phone
+                },
+                medicineSchedule: {
+                    totalMedicines: medicines.length,
+                    medicines: medicines
+                },
+                summary: {
+                    totalMedicines: medicines.length,
+                    totalDailyDoses: medicines.reduce((sum, med) => sum + med.dosesPerDay, 0),
+                    submissionTimestamp: new Date().toISOString(),
+                    formVersion: "1.0"
+                }
+            };
+
+            // Send data to Flask backend
+            const response = await fetch('/api/save-patient-schedule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(completeScheduleData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Backend Response:', result);
+
+            alert('Patient schedule saved successfully!');
+
+        } catch (error) {
+            console.error('Error sending data to backend:', error);
+            alert('Failed to save schedule to server. Please try again.');
+        }
+    });
+</script>
+
+{% endblock %}
