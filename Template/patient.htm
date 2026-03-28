@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MediBot AI - Patient and Medicine Schedule</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+        Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f8fafc;
+      min-height: 100vh;
+      padding-top: 100px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: black;
+    }
+
+    .cta-button {
+      background: black;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    main {
+      min-height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+      padding-bottom: 40px;
+    }
+
+    .form-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      margin: 0 auto;
+      max-width: 700px;
+      padding: 2rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-container::before {
+      content: '';
+      height: 4px;
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .form-header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .form-header p {
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    .form-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: white;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      background: #f8fafc;
+      transition: all 0.3s ease;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #f39c12;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+    }
+
+    .medicine-block {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .medicine-block h3 {
+      color: #f39c12;
+      margin-bottom: 0.75rem;
+    }
+
+    .slot-block {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    button.submit-btn {
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 1rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 1.5rem;
+      transition: background 0.3s ease;
+      user-select: none;
+    }
+
+    button.submit-btn:hover {
+      background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
+    }
+
+    footer {
+      background: #1a202c;
+      color: white;
+      padding: 2rem 0;
+      text-align: center;
+      width: 100%;
+    }
+
+    .footer-content {
+      color: #a0aec0;
+    }
+
+    section {
+      display: none;
+    }
+
+    section.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav>
+      <div class="logo">🤖 MediBot AI</div>
+      <a href="index.htm" class="cta-button">Home</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="patientDetails" class="active form-container">
+      <div class="form-header">
+        <div class="form-icon"><i class="fas fa-user-md"></i></div>
+        <h1>Patient Details</h1>
+        <p>Please provide your information to get personalized healthcare assistance</p>
+      </div>
+      <form id="patientForm">
+        <div class="form-group">
+          <label for="name">Full Name <span class="required">*</span></label>
+          <input type="text" id="name" name="name" required placeholder="Enter your full name" />
+        </div>
+        <div class="form-group">
+          <label for="age">Age <span class="required">*</span></label>
+          <input type="number" id="age" name="age" min="1" max="120" required placeholder="Enter your age" />
+        </div>
+        <div class="form-group">
+          <label for="gender">Gender <span class="required">*</span></label>
+          <select id="gender" name="gender" required>
+            <option value="">Select your gender</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="other">Other</option>
+            <option value="prefer-not-to-say">Prefer not to say</option>
+          </select>
+        </div>
+        <a href="#" class="next-btn" id="toMedicineSchedule">Next</a>
+      </form>
+    </section>
+
+    <section id="medicineSchedule" class="form-container">
+      <div class="form-header">
+        <div class="form-icon"><i class="fas fa-prescription-bottle-alt"></i></div>
+        <h1>Medicine Schedule Details</h1>
+        <p>Please specify your medication schedule and instructions</p>
+      </div>
+      <form id="scheduleForm">
+        <div class="form-group">
+          <label for="medicinesCount">Number of distinct medicines:</label>
+          <input type="number" id="medicinesCount" name="medicinesCount" min="1" max="10" required placeholder="e.g. 4" />
+        </div>
+        <div id="medicinesContainer"></div>
+        <button type="submit" class="submit-btn">Save Schedule</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <p>&copy; 2025 MediBot AI. All rights reserved. Your health information is secure and confidential.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Navigation logic
+    document.getElementById('toMedicineSchedule').addEventListener('click', function (e) {
+      e.preventDefault();
+      if (document.getElementById('patientForm').reportValidity()) {
+        document.getElementById('patientDetails').classList.remove('active');
+        document.getElementById('medicineSchedule').classList.add('active');
+      }
+    });
+
+    const medicinesCountInput = document.getElementById('medicinesCount');
+    const medicinesContainer = document.getElementById('medicinesContainer');
+
+    medicinesCountInput.addEventListener('input', function () {
+      medicinesContainer.innerHTML = '';
+      const count = parseInt(this.value);
+      if (count > 0 && count <= 10) {
+        for (let i = 1; i <= count; i++) {
+          const block = document.createElement('div');
+          block.className = 'medicine-block';
+
+          const title = document.createElement('h3');
+          title.textContent = `Medicine ${i}`;
+          block.appendChild(title);
+
+          // Medicine name
+          const nameLabel = document.createElement('label');
+          nameLabel.setAttribute('for', `medicineName${i}`);
+          nameLabel.textContent = 'Medicine name:';
+          block.appendChild(nameLabel);
+
+          const nameInput = document.createElement('input');
+          nameInput.type = 'text';
+          nameInput.id = `medicineName${i}`;
+          nameInput.name = `medicineName${i}`;
+          nameInput.placeholder = 'Enter medicine name';
+          nameInput.required = true;
+          block.appendChild(nameInput);
+
+          // Medicine type dropdown
+          const typeLabel = document.createElement('label');
+          typeLabel.setAttribute('for', `medicineType${i}`);
+          typeLabel.textContent = 'Medicine type:';
+          block.appendChild(typeLabel);
+
+          const typeSelect = document.createElement('select');
+          typeSelect.id = `medicineType${i}`;
+          typeSelect.name = `medicineType${i}`;
+          typeSelect.required = true;
+
+          const optionDefault = document.createElement('option');
+          optionDefault.value = '';
+          optionDefault.textContent = 'Select medicine type';
+          const optionTablet = document.createElement('option');
+          optionTablet.value = 'tablet';
+          optionTablet.text = 'Tablet';
+          const optionSyrup = document.createElement('option');
+          optionSyrup.value = 'syrup';
+          optionSyrup.text = 'Syrup';
+
+          typeSelect.appendChild(optionDefault);
+          typeSelect.appendChild(optionTablet);
+          typeSelect.appendChild(optionSyrup);
+          block.appendChild(typeSelect);
+
+          // Number of doses per day
+          const dosesLabel = document.createElement('label');
+          dosesLabel.setAttribute('for', `dosesPerDay${i}`);
+          dosesLabel.textContent = 'Number of doses per day:';
+          dosesLabel.style.marginTop = '10px';
+          block.appendChild(dosesLabel);
+
+          const dosesInput = document.createElement('input');
+          dosesInput.type = 'number';
+          dosesInput.id = `dosesPerDay${i}`;
+          dosesInput.name = `dosesPerDay${i}`;
+          dosesInput.placeholder = 'e.g. 3';
+          dosesInput.min = 1;
+          dosesInput.max = 10;
+          dosesInput.required = true;
+          block.appendChild(dosesInput);
+
+          // Slots container
+          const slotsContainer = document.createElement('div');
+          slotsContainer.id = `slotsContainer${i}`;
+          block.appendChild(slotsContainer);
+
+          dosesInput.addEventListener('input', () => {
+            slotsContainer.innerHTML = '';
+            let doseCount = parseInt(dosesInput.value);
+            const slotLabels = ['Before Breakfast', 'After Breakfast', 'Lunch', 'Dinner'];
+            if (doseCount > 0 && doseCount <= 4) {
+              slotLabels.forEach((label, idx) => {
+                const slotDiv = document.createElement('div');
+                slotDiv.className = 'slot-block';
+
+                const slotLabel = document.createElement('label');
+                slotLabel.setAttribute('for', `slotTime${i}_${idx + 1}`);
+                slotLabel.textContent = label;
+
+                const slotCheckbox = document.createElement('input');
+                slotCheckbox.type = 'checkbox';
+                slotCheckbox.id = `slotTime${i}_${idx + 1}`;
+                slotCheckbox.name = `slotTime${i}`;
+                slotCheckbox.value = label.toLowerCase().replace(' ', '_');
+
+                slotDiv.appendChild(slotCheckbox);
+                slotDiv.appendChild(slotLabel);
+                slotsContainer.appendChild(slotDiv);
+              });
+
+              const checkboxes = slotsContainer.querySelectorAll('input[type=checkbox]');
+              checkboxes.forEach(cb => {
+                cb.addEventListener('change', () => {
+                  const selected = Array.from(checkboxes).filter(cb => cb.checked);
+                  if (selected.length > doseCount) {
+                    cb.checked = false;
+                    alert(`You can select up to ${doseCount} slots.`);
+                  }
+                });
+              });
+            }
+          });
+
+          medicinesContainer.appendChild(block);
+        }
+      }
+    });
+
+    document.getElementById('scheduleForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      let scheduleData = {};
+      formData.forEach((val, key) => scheduleData[key] = val);
+      alert('Saved schedule data:\n' + JSON.stringify(scheduleData, null, 2));
+      // Backend integration point here
+    });
+  </script>
+</body>
+
+</html>
